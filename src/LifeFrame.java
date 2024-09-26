@@ -8,7 +8,7 @@ public class LifeFrame extends JFrame {
     public LifeFrame(){
 
         new ParameterPanel(this);
-       // new FieldPanel();
+        //new FieldPanel();
     }
 
     //Called by ParameterPanel for the first run of the simulation

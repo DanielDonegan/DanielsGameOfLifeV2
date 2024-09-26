@@ -13,7 +13,7 @@ public class Panel extends JPanel implements ActionListener{
 
     int  xPanel = 1000;
     int yPanel = 1000;
-    int size = 3;
+    int size = 2;
     int radius = 2;
     int xWidth =  xPanel / size;
     int yHeight = yPanel / size;

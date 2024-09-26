@@ -11,11 +11,16 @@ public class ParameterPanel {
     JCheckBox infiniteLoop;
     JTextField sizeOfNonInf;
 
-    private int amountOfBorders = 4;
+
+    SavedSimulationsPanel SSP;
+    SavedFieldsPanel SFP;
+
+
+    private int amountOfBorders = 15;
 
     //The square area in which activated cells can spawn. It is initially at 0 to indicate that we are not running a non-infinite loop simulation
     private int startSize = 0;
-    private int defaultStartSize = 8;
+    private int defaultStartSize = 40;
 
     //Not referring to this panel but the on running the cellular automata. I know, badly named class
     private Panel pan;
@@ -46,6 +51,7 @@ public class ParameterPanel {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel panel = new JPanel();
+        JTabbedPane tabbedPane = new JTabbedPane();
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
 
         frame.add(panel, BorderLayout.CENTER);
@@ -82,7 +88,7 @@ public class ParameterPanel {
             }
         });
 
-        infiniteLoop.setSelected(true);
+        infiniteLoop.setSelected(false);
 
        // panel.add(addStateChange, BorderLayout.SOUTH);
         panel.add(textOfSizeOfNonInf, BorderLayout.SOUTH);
@@ -92,9 +98,17 @@ public class ParameterPanel {
         panel.add(randomButton, BorderLayout.SOUTH);
         panel.add(infiniteLoop, BorderLayout.SOUTH);
 
+        tabbedPane.add("Parameters", panel);
+
+        //Setting up the Saves panel
+        SSP = new SavedSimulationsPanel(frame, tabbedPane);
+        SFP = new SavedFieldsPanel(frame, tabbedPane);
+
         //Adding the sliders and buttons for the various values that we want to configure
         JSlider slider = new JSlider(0, 100, 0);
         panel.add(slider, BorderLayout.CENTER);
+
+        frame.add(tabbedPane);
 
         frame.setVisible(true);
         panel.repaint();
@@ -114,9 +128,10 @@ public class ParameterPanel {
         }
 
         //Check whether we're doing and infinite loop simulation or not
-        boolean doInfLoop = true;
-        if (infiniteLoop.isSelected() == false){
-            doInfLoop = false;
+        boolean doInfLoop = false;
+        if (infiniteLoop.isSelected() == true){
+            doInfLoop = true;
+        }else{
             startSize = defaultStartSize;
         }
 
@@ -212,7 +227,7 @@ public class ParameterPanel {
 
         //Setting up divider values
         for (int i = 0; i < dividerValues.size(); i++){
-            dividerValues.get(i).setText(String.valueOf((int)RandomNumber(12, 1)));
+            dividerValues.get(i).setText(String.valueOf((int)RandomNumber(14, 1)));
             //dividerValues.get(i).setText("1");
         }
 
