@@ -16,7 +16,7 @@ public class ParameterPanel {
     SavedFieldsPanel SFP;
 
 
-    private int amountOfBorders = 15;
+    private int amountOfBorders = 5;
 
     //The square area in which activated cells can spawn. It is initially at 0 to indicate that we are not running a non-infinite loop simulation
     private int startSize = 0;

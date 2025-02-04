@@ -25,7 +25,7 @@ public class SavedFieldsPanel {
         tabbedPane.add("Saved fields", panel);
     }
 
-    void LoadSavedFields(){
+    /*void LoadSavedFields(){
         try{
             PrintWriter fileSaver = new PrintWriter(saveFileName);
             System.out.println(clickedInts.get(0).intValue());
@@ -47,5 +47,5 @@ public class SavedFieldsPanel {
         }catch (FileNotFoundException e){
             System.out.println("ERROR OCCURED: could not find the expected file");
         }
-    }
+    }*/
 }
