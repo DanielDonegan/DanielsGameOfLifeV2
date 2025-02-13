@@ -5,14 +5,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
 
 public class Panel extends JPanel implements ActionListener{
 
-    int  xPanel = 1000;
-    int yPanel = 1000;
+    int  xPanel = 500;
+    int yPanel = 500;
     int size = 2;
     int radius = 2;
     int xWidth =  xPanel / size;
@@ -20,6 +19,9 @@ public class Panel extends JPanel implements ActionListener{
     int fieldCount = 0;
     int fieldLimit = 1;
     int startSize;
+
+    //My feable attempts to fix graphics problem when sim not reloading properly
+    Graphics graphics;
 
 
     //References to outer scripts
@@ -33,7 +35,7 @@ public class Panel extends JPanel implements ActionListener{
     float highestAlive = 0f;
     float[][] life = new float[xWidth][yHeight];
     //I know it should be called afterLife blame the dang tutorial!
-    float[][] beforeLife = new float[xWidth][yHeight];
+    float[][] afterLife = new float[xWidth][yHeight];
 
 
     Timer theTimer;
@@ -55,17 +57,19 @@ public class Panel extends JPanel implements ActionListener{
         infLoop = infLoopRef;
         startSize = starttSizeRef;
 
-        setSize(1000, 1000);
+        setSize(xPanel, yPanel);
         setLayout(null);
         setBackground(Color.BLACK);
 
+        spawn(infLoop);
+
         ReadFieldData();
 
-        theTimer = new Timer(7, this);
+        theTimer = new Timer(50, this);
         theTimer.start();
     }
 
-    public void ResetPanel(ArrayList<Float> borderValsRef, ArrayList<Float> divValsRef, ArrayList<Float> delValsRef, Graphics g, boolean infLoopRef, int startSizeRef){
+    public void ResetPanel(ArrayList<Float> borderValsRef, ArrayList<Float> divValsRef, ArrayList<Float> delValsRef, boolean infLoopRef, int startSizeRef){
         borderVals = borderValsRef;
         divVals = delValsRef;
         delVals = delValsRef;
@@ -76,20 +80,33 @@ public class Panel extends JPanel implements ActionListener{
         ReadFieldData();
 
         life = new float[xWidth][yHeight];
-        beforeLife = new float[xWidth][yHeight];
+        //beforeLife = new float[xWidth][yHeight]; //This is responsible for the reset errors
 
-        //theTimer = new Timer(3, this);
-        theTimer.restart();
+        //spawn(infLoop);
 
-        paintComponent(g);
+        theTimer = new Timer(50, this);
+        theTimer.start();
     }
 
+    //Reverses all the divider values so that the initial image can be decrypted
+    public void ReverseBorderValues(){
+        ArrayList<Float> reversedDivVals = new ArrayList<>();
+
+        //Swapping the early values of divVals with the later values of reversedDivVals
+        for (int i = 0; i < divVals.size(); i++){
+            reversedDivVals.add(divVals.get(divVals.size() - 1 - i));
+        }
+
+        divVals = reversedDivVals;
+    }
+
+    //Class is continually run when Panel is open
     public void paintComponent(Graphics g){
         super.paintComponent(g);
+        graphics = g;
 
         //grid(g);
-
-        spawn(g, infLoop);
+        //System.out.println("Should be running display");
         display(g);
     }
 
@@ -103,14 +120,14 @@ public class Panel extends JPanel implements ActionListener{
         }
     }
 
-    private void spawn(Graphics g, boolean isInfinite){
+    private void spawn(boolean isInfinite){
         if (starts == true){
             if (isInfinite == true){
                 for (int x = 0; x < life.length; x++){
                     for (int y = 0; y < (yHeight); y++){
                        // if ((int)(Math.random() * 2) == 0){
-                        beforeLife[x][y] = (float)Math.random();
-                        beforeLife[x][y] = Math.round(beforeLife[x][y] * 100f) / 100f;
+                        afterLife[x][y] = (float)Math.random();
+                        afterLife[x][y] = Math.round(afterLife[x][y] * 100f) / 100f;
                             //System.out.println(beforeLife[x][y]);
                         delay[x][y] = 0;
                        // }
@@ -122,11 +139,11 @@ public class Panel extends JPanel implements ActionListener{
                        // if ((int)(Math.random() * 2) == 0){
                         //Setting the bounds for where a cell can have a higher activation than 1 so that half of the area is set definitely to inactive
                         if (x >= (life.length / 2) - startSize && x <= (life.length / 2) + startSize && y >= (yHeight / 2) - startSize && y <= (yHeight / 2) + startSize) {
-                            beforeLife[x][y] = (float)Math.random();
-                            beforeLife[x][y] = Math.round(beforeLife[x][y] * 100f) / 100f;
+                            afterLife[x][y] = (float)Math.random();
+                            afterLife[x][y] = Math.round(afterLife[x][y] * 100f) / 100f;
                             //System.out.println(beforeLife[x][y]);
                         }else{
-                            beforeLife[x][y] = 0f;
+                            afterLife[x][y] = 0f;
                         }
 
                         delay[x][y] = 0;
@@ -163,11 +180,12 @@ public class Panel extends JPanel implements ActionListener{
 
     //Copies the values for the life array into before life
     private void copyArray(){
-        for (int x = 0; x < life.length; x++){
+        /*for (int x = 0; x < life.length; x++){
             for (int y = 0; y < (yHeight); y++){
-                life[x][y] = beforeLife[x][y]; //???
+                life[x][y] = afterLife[x][y]; //???
             }
-        }
+        }*/
+        life = afterLife;
     }
 
     //a stands for alive and p stands for preAlive as we're are checking if we've found an alive cell
@@ -291,7 +309,7 @@ public class Panel extends JPanel implements ActionListener{
         }
     }
 
-    //Gathers all of the collective alive values from the surrounding cells to be processed and adapted into the current cell's alive value
+    //Gathers all the collective alive values from the surrounding cells to be processed and adapted into the current cell's alive value
     private float checkInput(int x, int y){
         float alive = 0;
 
@@ -368,6 +386,7 @@ public class Panel extends JPanel implements ActionListener{
         return alive;
     }
 
+    //Assigns all the alive values for the beforeLife array
     public void actionPerformed(ActionEvent e){
 
         float alive;
@@ -376,7 +395,6 @@ public class Panel extends JPanel implements ActionListener{
         for (int x = 0; x < life.length; x++){
             for (int y = 0; y < yHeight; y++){
                 alive = checkInput(x, y);
-                alive /= 1;
 
                 aliveValues.add(alive);
 
@@ -420,19 +438,19 @@ public class Panel extends JPanel implements ActionListener{
             if (i == 0){
                 if (alive < borderVals.get(i)){
                     cellStateNum = i;
-                    beforeLife[x][y] = alive * divVals.get(cellStateNum);
+                    afterLife[x][y] = alive * divVals.get(cellStateNum);
                     delay[x][y] = delVals.get(cellStateNum).intValue();
                     return;
                 }
             }else{
                 if (alive >= borderVals.get(i - 1) && alive <= borderVals.get(i) && life[x][y] >= borderVals.get(i)){
                     cellStateNum = i;
-                    beforeLife[x][y] = alive * divVals.get(cellStateNum);
+                    afterLife[x][y] = alive * divVals.get(cellStateNum);
                     delay[x][y] = delVals.get(cellStateNum).intValue();
                     return;
                 }else if (alive > borderVals.get(borderVals.size() - 1)){
                     cellStateNum = i;
-                    beforeLife[x][y] = alive * divVals.get(cellStateNum);
+                    afterLife[x][y] = alive * divVals.get(cellStateNum);
                     delay[x][y] = delVals.get(cellStateNum).intValue();
                     return;
                 }
@@ -446,16 +464,16 @@ public class Panel extends JPanel implements ActionListener{
     //For use of 4 state changes
     void ManualCellNextStep(float alive,int x,int y){
         if (alive >= 0.6f && alive <= 1){
-            beforeLife[x][y] = alive;
+            afterLife[x][y] = alive;
             delay[x][y] = 11;
         }else if (alive >= 0.4f && alive <= 0.6f){// && life[x][y] >= 0.3f){
-            beforeLife[x][y] = alive / 8;
+            afterLife[x][y] = alive / 8;
             delay[x][y] = 10;
         }else if (alive >= 0.4f && alive < 0.5f){
-            beforeLife[x][y] = alive / 8;
+            afterLife[x][y] = alive / 8;
             delay[x][y] = 8;
         }else if (alive < 0.3f){
-            beforeLife[x][y] = alive;
+            afterLife[x][y] = alive;
             delay[x][y] = 2;
         }
     }

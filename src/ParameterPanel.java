@@ -16,11 +16,12 @@ public class ParameterPanel {
     SavedFieldsPanel SFP;
 
 
-    private int amountOfBorders = 5;
+    //Amount of 
+    private int amountOfBorders = 4;
 
     //The square area in which activated cells can spawn. It is initially at 0 to indicate that we are not running a non-infinite loop simulation
     private int startSize = 0;
-    private int defaultStartSize = 40;
+    private int defaultStartSize = 30;
 
     //Not referring to this panel but the on running the cellular automata. I know, badly named class
     private Panel pan;
@@ -36,11 +37,13 @@ public class ParameterPanel {
 
     boolean firstRunOfSim = true;
 
+    //Called by LifeFrame
     public ParameterPanel(LifeFrame lfRef){
         lf = lfRef;
         MakePanel();
     }
 
+    //Makes the panel with all the tweak-able parameters on it
     public void MakePanel(){
         //Panel setup
         frame = new JFrame();
@@ -50,10 +53,12 @@ public class ParameterPanel {
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+        //Making the JPanel and TabbedPane
         JPanel panel = new JPanel();
         JTabbedPane tabbedPane = new JTabbedPane();
         panel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
 
+        //Add the panel to the current JFrame
         frame.add(panel, BorderLayout.CENTER);
 
         //Setup the panel with the text boxes
@@ -64,16 +69,17 @@ public class ParameterPanel {
         JButton resetButton = new JButton("Reset");
         JButton runButtton = new JButton("Run");
         JButton randomButton = new JButton("Random");
+        JButton decryptButton = new JButton("Decrypt");
         infiniteLoop = new JCheckBox("Inf loop");
         sizeOfNonInf = new JTextField(4);
         JTextArea textOfSizeOfNonInf = new JTextArea("Start size");
 
-
-
+        //Adding functionality to the reset button
         resetButton.addActionListener(e -> {
             lf.CloseSimulation();
         });
 
+        //Adding functionality to the run button
         runButtton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -81,6 +87,7 @@ public class ParameterPanel {
             }
         });
 
+        //Adding functionality to the random button
         randomButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -88,14 +95,23 @@ public class ParameterPanel {
             }
         });
 
+        decryptButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                pan.ReverseBorderValues();
+            }
+        });
+
+        //The infiniteLoop refers to whether we want to have the simulation be able to expand into open space or simply allow every cell in the simulation to have a randomised activity from the start
         infiniteLoop.setSelected(false);
 
-       // panel.add(addStateChange, BorderLayout.SOUTH);
+        //Adding all the buttons to the JPanel
         panel.add(textOfSizeOfNonInf, BorderLayout.SOUTH);
         panel.add(sizeOfNonInf, BorderLayout.SOUTH);
         panel.add(resetButton, BorderLayout.SOUTH);
         panel.add(runButtton, BorderLayout.SOUTH);
         panel.add(randomButton, BorderLayout.SOUTH);
+        panel.add(decryptButton, BorderLayout.SOUTH);
         panel.add(infiniteLoop, BorderLayout.SOUTH);
 
         tabbedPane.add("Parameters", panel);
@@ -135,15 +151,17 @@ public class ParameterPanel {
             startSize = defaultStartSize;
         }
 
+        //Check if this is the first run of the simulation or not which matters because if it is the first run of the simulation LifeFrame will try and close the Panel with all the 'life' on it when it hasn't even been opened
         if (firstRunOfSim == true){
-            lf.MakePanelPanel(borderVals, divVals, delVals, doInfLoop, startSize);
+            pan = lf.MakePanelPanel(borderVals, divVals, delVals, doInfLoop, startSize);
             firstRunOfSim = false;
         }else{
-            lf.CloseSimulation();
+            //lf.CloseSimulation();
             lf.StartSimulation(borderVals, divVals, delVals, doInfLoop, startSize);
         }
     }
 
+    //Puts the default values into all the text fields in the GUI
     void SetupValuesInTextFields(){
         //Setting up border values
         for (int i = 0; i < amountOfBorders; i++){
@@ -166,6 +184,7 @@ public class ParameterPanel {
         pan = panRef;
     }
 
+    //Creates the GUI of the border values, the divider values and the delay values
     public void SetupStateChanges(JPanel panel, int counter, int originalCounterVal){
         //Setting up the borderVal, divVal and the delVal
         JTextField borderValue = new JTextField(8);
@@ -210,7 +229,7 @@ public class ParameterPanel {
         }
     }
 
-    //Randomise all of the input values
+    //Randomises all the input values for the border values, the divider values and the delay values
     void RandomiseAll(){
         ArrayList<Float> borderControl = new ArrayList<Float>();
         //Decides the right order for the border values
@@ -286,7 +305,6 @@ public class ParameterPanel {
             }
         });
 
-        //panel.add(inputFieldStateChange, BorderLayout.CENTER);
         panel.add(deleteButton, BorderLayout.CENTER);
 
         stateChangeList = inputFieldList;
